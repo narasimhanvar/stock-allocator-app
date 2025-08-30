@@ -4,18 +4,22 @@ import numpy as np
 from pathlib import Path
 import traceback
 
-# === Path to your compiled CSV ===
-COMPILED_CSV = r"C:\Users\Narasimhan\OneDrive - vf3wg\Stock_Prediction_Project\output\compiled_shortlong_allhorizons_20250830_095747.csv"
+from pathlib import Path
+import pandas as pd
 
-# === Utility functions ===
-def _ensure_df(path) -> pd.DataFrame:
-    p = Path(path)
+# Use relative path instead of hardcoding your Windows path
+OUTPUT_ROOT = Path(__file__).parent  # current folder where appmain.py lives
+COMPILED_CSV = OUTPUT_ROOT / "compiled_shortlong_allhorizons_20250830_095747.csv"
+
+def _ensure_df(path=None) -> pd.DataFrame:
+    p = Path(path) if path else COMPILED_CSV
     if not p.exists():
-        raise FileNotFoundError("No compiled CSV found. Run compiler in Jupyter first.")
+        raise FileNotFoundError(f"No compiled CSV found at {p}. Upload it to GitHub repo.")
     df = pd.read_csv(p)
     if "symbol" in df.columns:
         df["symbol"] = df["symbol"].astype(str).str.upper().str.replace(".NS","", regex=False)
     return df
+
 
 def _pref_column(df, prefixes):
     pred_cols = [c for c in df.columns if c.startswith("pred_safe_")]
